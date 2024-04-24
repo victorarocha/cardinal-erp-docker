@@ -2,7 +2,7 @@ x-customizable-image: &customizable_image
   # By default the image used only contains the `frappe` and `erpnext` apps.
   # See https://github.com/frappe/frappe_docker/blob/main/docs/custom-apps.md
   # about using custom images.
-  image: inblay-demo-erp:1.0.0
+  image: cardinal-erp:1.0.1
   pull_policy: never
 
 services:
@@ -10,7 +10,9 @@ services:
     <<: *customizable_image
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
+    depends_on:
+      - db
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
@@ -20,6 +22,8 @@ services:
     deploy:
       restart_policy:
         condition: none
+    depends_on:
+      - backend
     entrypoint:
       - bash
       - -c
@@ -48,6 +52,8 @@ services:
     deploy:
       restart_policy:
         condition: none
+    depends_on:
+      - backend
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
@@ -76,24 +82,23 @@ services:
         bench install-app hrms;
         bench install-app payments;
         bench install-app lending;
-        bench install-app healthcare;
+        bench install-app tldraw_whiteboard;
         bench migrate;
 
 
   db:
-    image: mariadb:10.6
+    image: mariadb:10.8
     healthcheck:
       test: mysqladmin ping -h localhost --password=admin
       interval: 1s
       retries: 15
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
       - --skip-character-set-client-handshake
-      - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
     environment:
       MYSQL_ROOT_PASSWORD: admin
     volumes:
@@ -103,9 +108,10 @@ services:
     <<: *customizable_image
     depends_on:
       - websocket
+      - backend
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
     command:
       - nginx-entrypoint.sh
     environment:
@@ -121,13 +127,15 @@ services:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
     ports:
-      - "8080:8080"
+      - "8082:8080"
 
   queue-long:
     <<: *customizable_image
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
+    depends_on:
+      - backend
     command:
       - bench
       - worker
@@ -141,7 +149,7 @@ services:
     <<: *customizable_image
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
     command:
       - bench
       - worker
@@ -155,7 +163,7 @@ services:
     image: redis:6.2-alpine
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
     volumes:
       - redis-queue-data:/data
 
@@ -163,7 +171,7 @@ services:
     image: redis:6.2-alpine
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
     volumes:
       - redis-cache-data:/data
 
@@ -171,7 +179,9 @@ services:
     <<: *customizable_image
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
+    depends_on:
+      - backend
     command:
       - bench
       - schedule
@@ -183,7 +193,7 @@ services:
     <<: *customizable_image
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
     command:
       - node
       - /home/frappe/frappe-bench/apps/frappe/socketio.js

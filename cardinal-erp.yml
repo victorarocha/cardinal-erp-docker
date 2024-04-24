@@ -2,7 +2,7 @@ x-customizable-image: &customizable_image
   # By default the image used only contains the `frappe` and `erpnext` apps.
   # See https://github.com/frappe/frappe_docker/blob/main/docs/custom-apps.md
   # about using custom images.
-  image: inblay-demo-erp:1.0.0
+  image: cardinal-erp:1.0.1
   pull_policy: never
 
 services:
@@ -10,7 +10,7 @@ services:
     <<: *customizable_image
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
@@ -76,7 +76,7 @@ services:
         bench install-app hrms;
         bench install-app payments;
         bench install-app lending;
-        bench install-app healthcare;
+        bench install-app tldraw_whiteboard;
         bench migrate;
 
 
@@ -88,7 +88,7 @@ services:
       retries: 15
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
@@ -103,9 +103,10 @@ services:
     <<: *customizable_image
     depends_on:
       - websocket
+      - backend
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
     command:
       - nginx-entrypoint.sh
     environment:
@@ -121,13 +122,13 @@ services:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
     ports:
-      - "8080:8080"
+      - "8081:8080"
 
   queue-long:
     <<: *customizable_image
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
     command:
       - bench
       - worker
@@ -141,7 +142,7 @@ services:
     <<: *customizable_image
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
     command:
       - bench
       - worker
@@ -155,7 +156,7 @@ services:
     image: redis:6.2-alpine
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
     volumes:
       - redis-queue-data:/data
 
@@ -163,7 +164,7 @@ services:
     image: redis:6.2-alpine
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
     volumes:
       - redis-cache-data:/data
 
@@ -171,7 +172,7 @@ services:
     <<: *customizable_image
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
     command:
       - bench
       - schedule
@@ -183,7 +184,7 @@ services:
     <<: *customizable_image
     deploy:
       restart_policy:
-        condition: on-failure
+        condition: any
     command:
       - node
       - /home/frappe/frappe-bench/apps/frappe/socketio.js
