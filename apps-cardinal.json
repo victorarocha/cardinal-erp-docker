@@ -1,0 +1,27 @@
+[
+  {
+    "url": "https://github.com/frappe/erpnext.git",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/frappe/payments.git",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/frappe/hrms.git",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/frappe/lending.git",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/git-avc/mexico-einvoice.git",
+    "branch": "main"
+  },
+  {
+    "url": "https://github.com/NagariaHussain/tldraw_whiteboard.git",
+    "branch": "develop"
+  }
+]
+
